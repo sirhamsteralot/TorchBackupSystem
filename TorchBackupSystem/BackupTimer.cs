@@ -63,10 +63,8 @@ namespace TorchBackupSystem
             if (!Enabled)
             {
                 _timer?.Dispose();
+                _timer = null;
                 return;
-            } else if(_timer == null)
-            {
-                _timer = new Timer(OnTimerTrigger, this, MSBetweenBackupCheck, MSBetweenBackupCheck);
             }
                 
 
@@ -82,6 +80,11 @@ namespace TorchBackupSystem
         private void OnTimerChanged(string field = "")
         {
             NextRun = DateTime.Now.AddMilliseconds(_dueTime);
+
+            if(_timer == null && Enabled)
+            {
+                _timer = new Timer(OnTimerTrigger, this, MSBetweenBackupCheck, MSBetweenBackupCheck);
+            }
         }
 
         private void RunBackup(object state)

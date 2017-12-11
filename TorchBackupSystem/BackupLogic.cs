@@ -41,33 +41,10 @@ namespace TorchBackupSystem
         /// <inheritdoc />
         public override void Init(ITorchBase torch)
         {
-            Log.Info("Loading TorchBackupSystem.");
-
             base.Init(torch);
 
             _config = Persistent<BackupConfig>.Load(Path.Combine(StoragePath, "Backup.cfg"));
             _config.Data.LoadTimers();
-
-            Log.Info("Loading Complete.");
-
-            SetLogging();
-        }
-
-        public void SetLogging()
-        {
-            if (_config.Data.EnableLogging)
-            {
-                var fileTarget = new FileTarget
-                {
-                    Layout = @"${var:logStamp} ${logger}: ${var:logContent}",
-                    FileName = @"Logs\\TorchBackup-${shortdate}.log"
-                };
-
-                LogManager.Configuration.AddTarget("Backup", fileTarget);
-            } else
-            {
-                LogManager.Configuration.RemoveTarget("Backup");
-            }
         }
 
         public override void Update()

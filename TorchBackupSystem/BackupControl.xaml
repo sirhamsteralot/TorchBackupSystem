@@ -1,0 +1,29 @@
+﻿<UserControl x:Class="TorchBackupSystem.BackupControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:TorchBackupSystem"
+             mc:Ignorable="d" >
+
+    <UserControl.Resources>
+        <Style TargetType="{x:Type DataGridCell}">
+            <Setter Property="IsEnabled" Value="True" />
+            <Style.Triggers>
+                <DataTrigger Value="NextRun" Binding="{Binding Path=Column.Header, RelativeSource={RelativeSource Self}}">
+                    <Setter Property="IsEnabled" Value="False" />
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+    </UserControl.Resources>
+
+    <UserControl.DataContext>
+        <local:BackupConfig/>
+    </UserControl.DataContext>
+    <StackPanel>
+        <Label Content="Backups"></Label>
+        <Button Content="Add" Click="AddBackup_OnClick"></Button>
+        <DataGrid ItemsSource="{Binding Backups, UpdateSourceTrigger=PropertyChanged}" KeyDown="UIElement_OnKeyDown"/>
+        <Button Content="Save Config" Click="SaveConfig_OnClick"/>
+    </StackPanel>
+</UserControl>

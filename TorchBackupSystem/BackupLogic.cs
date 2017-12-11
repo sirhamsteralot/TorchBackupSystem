@@ -34,8 +34,17 @@ namespace TorchBackupSystem
 
         public void Save()
         {
-            _config.Save();
-            Log.Info("Configuration Saved.");
+            try
+            {
+                _config.Save();
+                Log.Info("Configuration Saved.");
+            }
+            catch (IOException)
+            {
+                Log.Warn("Configuration failed to save");
+            }
+            
+            
         }
 
         /// <inheritdoc />

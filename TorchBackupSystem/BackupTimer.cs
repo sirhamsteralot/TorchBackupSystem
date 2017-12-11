@@ -41,7 +41,7 @@ namespace TorchBackupSystem
         private DateTime _nextRun;
         public DateTime NextRun { get => _nextRun; set { _nextRun = value; OnPropertyChanged(); } }
 
-        private int MSBetweenBackupCheck = 1000;
+        private int MSBetweenBackupCheck = 10;
         private BackupLogic _core;
 
         public void Initialize(BackupLogic core)
@@ -54,8 +54,9 @@ namespace TorchBackupSystem
             }
 
             _timer?.Dispose();
+            var diff = NextRun - DateTime.Now;
             if (Enabled)
-                _timer = new Timer(OnTimerTrigger, this, MSBetweenBackupCheck, MSBetweenBackupCheck);
+                _timer = new Timer(OnTimerTrigger, this, MSBetweenBackupCheck, diff.Milliseconds);
         }
 
         private void OnTimerTrigger(object state)
@@ -83,7 +84,8 @@ namespace TorchBackupSystem
 
             if(_timer == null && Enabled)
             {
-                _timer = new Timer(OnTimerTrigger, this, MSBetweenBackupCheck, MSBetweenBackupCheck);
+                var diff = NextRun - DateTime.Now;
+                _timer = new Timer(OnTimerTrigger, this, MSBetweenBackupCheck, diff.Milliseconds);
             }
         }
 

@@ -44,7 +44,6 @@ namespace TorchBackupSystem
             base.Init(torch);
 
             _config = Persistent<BackupConfig>.Load(Path.Combine(StoragePath, "Backup.cfg"));
-            _config.Data.LoadTimers();
         }
 
         public override void Update()

@@ -21,60 +21,76 @@ namespace TorchBackupSystem
         private static readonly Logger Log = LogManager.GetLogger("Backup");
 
         private bool _enabled;
-        public bool Enabled { get => _enabled; set { _enabled = value; OnTimerChanged(); OnPropertyChanged(); } }
+        public bool Enabled { get => _enabled; set { _enabled = value; OnTimerChanged("Enabled"); OnPropertyChanged(); } }
 
         private string _backupName;
-        public string BackupName { get => _backupName; set { _backupName = value; OnTimerChanged(); OnPropertyChanged(); } }
+        public string BackupName { get => _backupName; set { _backupName = value; OnTimerChanged("BackupName"); OnPropertyChanged(); } }
 
         private string _backupPath;
-        public string BackupPath { get => _backupPath; set { _backupPath = value; OnTimerChanged(); OnPropertyChanged(); } }
+        public string BackupPath { get => _backupPath; set { _backupPath = value; OnTimerChanged("BackupPath"); OnPropertyChanged(); } }
 
         private int _dueTime;
-        public int DueTime { get => _dueTime / 1000; set { _dueTime = value * 1000; OnTimerChanged(); OnPropertyChanged(); } }
+        public int DueTime { get => _dueTime / 1000; set { _dueTime = value * 1000; OnTimerChanged("DueTime"); OnPropertyChanged(); } }
 
         private int _period;
-        public int Period { get => _period / 1000; set { _period = value * 1000; OnTimerChanged(); OnPropertyChanged(); } }
-
-        private bool _timeStamp;
-        public bool TimeStamp { get => _timeStamp; set { _timeStamp = value; OnTimerChanged(); OnPropertyChanged(); } }
+        public int Period { get => _period / 1000; set { _period = value * 1000; OnTimerChanged("Period"); OnPropertyChanged(); } }
 
         private int _backupAmount;
-        public int BackupAmount { get => _backupAmount; set { _backupAmount = value; OnTimerChanged(); OnPropertyChanged(); } }
+        public int BackupAmount { get => _backupAmount; set { _backupAmount = value; OnTimerChanged("BackupAmount"); OnPropertyChanged(); } }
 
         private DateTime _nextRun;
-        public DateTime NextRun { get => _nextRun; set { _nextRun = value; OnPropertyChanged(); } }
+        public DateTime NextRun { get => _nextRun; set { _nextRun = value;  OnTimerChanged("NextRun"); OnPropertyChanged(); } }
 
-        private void OnTimerChanged()
+        private bool onlyRunOnce = true;
+
+        private void OnTimerChanged(string field = "")
         {
-            _timer?.Dispose();
             if (Enabled && Period > 0)
             {
-                _timer = new Timer(RunBackup, this, _dueTime, _period);
-                NextRun = DateTime.Now.AddMilliseconds(_dueTime);
-            }
-        }
+                Log.Debug($"field: {field}");
 
-        public void LoadPrevTimer()
-        {
-            if (NextRun > DateTime.Now && Enabled && Period > 0)
-            {
-                var diff = NextRun - DateTime.Now;
+                if (NextRun > DateTime.Now && field == "NextRun" && onlyRunOnce)
+                {
+                    Log.Debug("NextRun");
 
-                _timer = new Timer(RunBackup, this, diff.Milliseconds, _period);
-                NextRun = DateTime.Now.AddMilliseconds(diff.Milliseconds);
-            } else
-            {
-                OnTimerChanged();
+                    onlyRunOnce = false;
+                    var diff = NextRun - DateTime.Now;
+
+                    _timer = new Timer(RunBackup, this, diff.Milliseconds, _period);
+                    NextRun = DateTime.Now.AddMilliseconds(diff.Milliseconds);
+                } else if (field == "NextRun" && onlyRunOnce)
+                {
+                    _timer?.Dispose();
+                    onlyRunOnce = false;
+
+                    _timer = new Timer(RunBackup, this, _dueTime, _period);
+                    NextRun = DateTime.Now.AddMilliseconds(_dueTime);
+                } else if (field == "MissedRun")
+                {
+                    _timer?.Dispose();
+
+                    Log.Debug("!NextRun");
+
+                    _timer = new Timer(RunBackup, this, _dueTime, _period);
+                    NextRun = DateTime.Now.AddMilliseconds(_dueTime);
+                } else if (field != "NextRun" && field != "MissedRun")
+                {
+                    _timer?.Dispose();
+
+                    Log.Debug("!NextRun");
+
+                    _timer = new Timer(RunBackup, this, _dueTime, _period);
+                    NextRun = DateTime.Now.AddMilliseconds(_dueTime);
+                }
             }
         }
 
         private void RunBackup(object state)
         {
-            
 
             if (((TorchServer)TorchBase.Instance).State != ServerState.Running)
             {
-                OnTimerChanged();
+                OnTimerChanged("MissedRun");
 
                 return;
             }
@@ -86,18 +102,16 @@ namespace TorchBackupSystem
 
             var Backup = (BackupTimer)state;
 
+            Log.Debug($"Trying to run backup: {Backup.BackupName}");
+
             string filePath;
             string divider;
             if (Backup.BackupPath.EndsWith("\\")) divider = ""; else divider = "\\";
 
 
-            if (_timeStamp)
-            {
-                filePath = $"{Backup.BackupPath}{divider}{Backup.BackupName}_{DateTime.Now.ToString("yyyyMMddHHmmss")}";
-            } else
-            {
-                filePath = $"{Backup.BackupPath}{divider}{Backup.BackupName}";
-            }
+           
+            filePath = $"{Backup.BackupPath}{divider}{Backup.BackupName}_{DateTime.Now.ToString("yyyyMMddHHmmss")}";
+           
 
             if (!CheckFileNameValid(filePath))
             {

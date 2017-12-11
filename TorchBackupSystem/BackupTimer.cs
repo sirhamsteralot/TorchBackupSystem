@@ -75,6 +75,7 @@ namespace TorchBackupSystem
                 RunBackup(this);
                 Log.Debug($"Triggering {_backupName}");
                 NextRun = NextRun.AddMilliseconds(_period);
+                _core.Save();
             }
         }
 

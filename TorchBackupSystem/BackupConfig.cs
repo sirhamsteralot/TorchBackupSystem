@@ -12,11 +12,11 @@ namespace TorchBackupSystem
     {
         public ObservableCollection<BackupTimer> Backups { get; } = new ObservableCollection<BackupTimer>();
 
-        public void SetLoaded()
+        public void SetLoaded(BackupLogic core)
         {
             foreach (var backup in Backups)
             {
-                backup.Initialize();
+                backup.Initialize(core);
             }
         }
     }

@@ -39,50 +39,33 @@ namespace TorchBackupSystem
         public int BackupAmount { get => _backupAmount; set { _backupAmount = value; OnTimerChanged("BackupAmount"); OnPropertyChanged(); } }
 
         private DateTime _nextRun;
-        public DateTime NextRun { get => _nextRun; set { _nextRun = value;  OnTimerChanged("NextRun"); OnPropertyChanged(); } }
+        public DateTime NextRun { get => _nextRun; set { _nextRun = value; OnPropertyChanged(); } }
 
-        private bool onlyRunOnce = true;
+        private int MSBetweenBackupCheck = 1000;
+
+        public void Initialize()
+        {
+            if (DateTime.Now > NextRun)
+            {
+                NextRun = DateTime.Now.AddMilliseconds(_dueTime);
+            }
+
+            _timer?.Dispose();
+            _timer = new Timer(OnTimerTrigger, this, MSBetweenBackupCheck, MSBetweenBackupCheck);
+        }
+
+        private void OnTimerTrigger(object state)
+        {
+            if (DateTime.Now > NextRun)
+            {
+                RunBackup(this);
+                NextRun = NextRun.AddMilliseconds(_period);
+            }
+        }
 
         private void OnTimerChanged(string field = "")
         {
-            if (Enabled && Period > 0)
-            {
-                Log.Debug($"field: {field}");
-
-                if (NextRun > DateTime.Now && field == "NextRun" && onlyRunOnce)
-                {
-                    Log.Debug("NextRun");
-
-                    onlyRunOnce = false;
-                    var diff = NextRun - DateTime.Now;
-
-                    _timer = new Timer(RunBackup, this, diff.Milliseconds, _period);
-                    NextRun = DateTime.Now.AddMilliseconds(diff.Milliseconds);
-                } else if (field == "NextRun" && onlyRunOnce)
-                {
-                    _timer?.Dispose();
-                    onlyRunOnce = false;
-
-                    _timer = new Timer(RunBackup, this, _dueTime, _period);
-                    NextRun = DateTime.Now.AddMilliseconds(_dueTime);
-                } else if (field == "MissedRun")
-                {
-                    _timer?.Dispose();
-
-                    Log.Debug("!NextRun");
-
-                    _timer = new Timer(RunBackup, this, _dueTime, _period);
-                    NextRun = DateTime.Now.AddMilliseconds(_dueTime);
-                } else if (field != "NextRun" && field != "MissedRun")
-                {
-                    _timer?.Dispose();
-
-                    Log.Debug("!NextRun");
-
-                    _timer = new Timer(RunBackup, this, _dueTime, _period);
-                    NextRun = DateTime.Now.AddMilliseconds(_dueTime);
-                }
-            }
+            NextRun = DateTime.Now.AddMilliseconds(_dueTime);
         }
 
         private void RunBackup(object state)
@@ -90,8 +73,6 @@ namespace TorchBackupSystem
 
             if (((TorchServer)TorchBase.Instance).State != ServerState.Running)
             {
-                OnTimerChanged("MissedRun");
-
                 return;
             }
 

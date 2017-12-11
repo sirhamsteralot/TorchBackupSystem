@@ -43,7 +43,10 @@ namespace TorchBackupSystem
         {
             base.Init(torch);
 
+            Log.Debug("loading _config");
             _config = Persistent<BackupConfig>.Load(Path.Combine(StoragePath, "Backup.cfg"));
+            _config.Data.SetLoaded();
+            Log.Debug("_config loaded");
         }
 
         public override void Update()

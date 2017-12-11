@@ -11,5 +11,13 @@ namespace TorchBackupSystem
     public class BackupConfig : ViewModel
     {
         public ObservableCollection<BackupTimer> Backups { get; } = new ObservableCollection<BackupTimer>();
+
+        public void SetLoaded()
+        {
+            foreach (var backup in Backups)
+            {
+                backup.Initialize();
+            }
+        }
     }
 }

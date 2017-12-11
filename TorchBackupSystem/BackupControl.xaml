@@ -21,9 +21,10 @@
         <local:BackupConfig/>
     </UserControl.DataContext>
     <StackPanel>
-        <Label Content="Backups"></Label>
-        <Button Content="Add" Click="AddBackup_OnClick"></Button>
-        <DataGrid ItemsSource="{Binding Backups, UpdateSourceTrigger=PropertyChanged}" KeyDown="UIElement_OnKeyDown"/>
-        <Button Content="Save Config" Click="SaveConfig_OnClick"/>
+        <Label Content="Backups" Margin="0,0,0,10"></Label>
+        <Button Content="Add" Click="AddBackup_OnClick" Margin="10,1"></Button>
+        <Button Content="Save Config" Click="SaveConfig_OnClick" Margin="10,1"/>
+        <DataGrid ItemsSource="{Binding Backups, UpdateSourceTrigger=PropertyChanged}" KeyDown="UIElement_OnKeyDown " Margin="10"/>
+        
     </StackPanel>
 </UserControl>

@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Windows.Controls;
 using NLog;
+using NLog.Config;
+using NLog.Targets;
 using Sandbox.Engine.Multiplayer;
 using Sandbox.Game.Entities;
 using Sandbox.Game.Entities.Character;
@@ -47,8 +49,26 @@ namespace TorchBackupSystem
             _config.Data.LoadTimers();
 
             Log.Info("Loading Complete.");
+
+            SetLogging();
         }
 
+        public void SetLogging()
+        {
+            if (_config.Data.EnableLogging)
+            {
+                var fileTarget = new FileTarget
+                {
+                    Layout = @"${var:logStamp} ${logger}: ${var:logContent}",
+                    FileName = @"Logs\\TorchBackup-${shortdate}.log"
+                };
+
+                LogManager.Configuration.AddTarget("Backup", fileTarget);
+            } else
+            {
+                LogManager.Configuration.RemoveTarget("Backup");
+            }
+        }
 
         public override void Update()
         {

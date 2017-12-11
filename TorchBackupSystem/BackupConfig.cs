@@ -11,6 +11,7 @@ namespace TorchBackupSystem
     public class BackupConfig : ViewModel
     {
         public ObservableCollection<BackupTimer> Backups { get; } = new ObservableCollection<BackupTimer>();
+        public bool EnableLogging;
 
         public void LoadTimers()
         {

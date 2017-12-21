@@ -43,8 +43,6 @@ namespace TorchBackupSystem
             {
                 Log.Warn("Configuration failed to save");
             }
-            
-            
         }
 
         /// <inheritdoc />

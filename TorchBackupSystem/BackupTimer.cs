@@ -72,6 +72,7 @@ namespace TorchBackupSystem
                 Log.Warn($"Backup failed, trying again in {DueTime} seconds");
                 NextRun = NextRun.AddMilliseconds(_dueTime);
                 _core.Save();
+                return;
             }
 
             if (DateTime.Now > NextRun)

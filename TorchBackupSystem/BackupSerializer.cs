@@ -11,6 +11,7 @@ using System.Text;
 using VRage;
 using VRage.Audio;
 using VRage.Utils;
+using Torch;
 
 namespace TorchBackupSystem
 {
@@ -21,8 +22,12 @@ namespace TorchBackupSystem
         public static void Save(string TargetDir = null, string customName = null, Action callbackOnFinished = null)
         {
             MySessionSnapshot snapshot;
-            bool snapshotSuccess = MySession.Static.Save(out snapshot, customName);
+            bool snapshotSuccess = false;
+            TorchBase.Instance.Invoke(() => { snapshotSuccess = MySession.Static.Save(out snapshot, customName); FinishSaving(TargetDir, customName, snapshot); });
+        }
 
+        private static void FinishSaving(string TargetDir, string customName, MySessionSnapshot snapshot)
+        {
             if (TargetDir != null)
             {
                 snapshot.SavingDir = $"{TargetDir}.new";

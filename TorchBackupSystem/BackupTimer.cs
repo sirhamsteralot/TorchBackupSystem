@@ -149,7 +149,16 @@ namespace TorchBackupSystem
                 }
 
                 if (fileCount >= _backupAmount)
-                    Directory.Delete(oldestFile.Item1, true);
+                {
+                    try
+                    {
+                        Directory.Delete(oldestFile.Item1, true);
+                    }
+                    catch (Exception e)
+                    {
+                        Log.Error($"Exception when deleting old backup. Please check the backup folder and delete old files as needed.\n {e.StackTrace}");
+                    }
+                }
             }
 
             try

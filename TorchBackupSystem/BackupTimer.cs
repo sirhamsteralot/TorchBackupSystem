@@ -152,6 +152,10 @@ namespace TorchBackupSystem
                 {
                     try
                     {
+                        foreach (var file in Directory.GetFiles(oldestFile.Item1))
+                        {
+                            File.SetAttributes(file, FileAttributes.Normal);
+                        }
                         Directory.Delete(oldestFile.Item1, true);
                     }
                     catch (Exception e)

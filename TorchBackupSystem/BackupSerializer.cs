@@ -34,7 +34,7 @@ namespace TorchBackupSystem
                 snapshot.TargetDir = TargetDir;
             }
 
-            snapshot.SaveParallel(Complete);
+            snapshot.SaveParallel(null, null, Complete);
 
             Log.Info($"Backing up to {TargetDir}");
         }
